@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+
+const SECRETO = "wali";
 
 export function UseState({ nombre }) {
     // Usamos el propTypes para validar los props que lleguen a nuestro componente
@@ -9,19 +11,85 @@ export function UseState({ nombre }) {
 
     // Declaramos un estado [error, setError] el cual el primero sirve para obtener el valor y el segundo para actulizar el valor
     // Además, useState(true) sirve para asignar un estado con el valor inical de true
-    const [error, setError] = useState(true);
-    return (
-        <>
-            <h2>Eliminar {nombre}</h2>
-            <p>Por favor, escribe el código de seguridad.</p>
+    const [valor, setValor] = useState("");
+    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [confirmado, setConfirmado] = useState(false);
+    const [eliminado, setEliminado] = useState(false);
 
-            {/* Usamos directamente "error" para acceder al valor de nuestro estado  */}
-            {error && <p>Error: el código es incorrecto</p>}
+    useEffect(() => {
+        // console.log("Inicio de proceso");
+        if (loading) {
+            setTimeout(() => {
+                console.log("setTimeout iniciado");
+                if (SECRETO !== valor) {
+                    setError(true);
+                    setLoading(false);
+                } else {
+                    setError(false);
+                    setLoading(false);
+                    setConfirmado(true);
+                }
+            }, 2000);
+        }
+    }, [loading]);
 
-            <input type="text" placeholder="Código de seguridad" />
+    if (!confirmado && !eliminado) {
+        return (
+            <>
+                <h2>Eliminar {nombre}</h2>
+                <p>Por favor, escribe el código de seguridad.</p>
 
-            {/* Usamos setError() para actulizar el valor de nuestro estado */}
-            <button onClick={() => setError(!error)}>Comprobar</button>
-        </>
-    );
+                {/* Usamos directamente "error" para acceder al valor de nuestro estado  */}
+                {error && !loading && <p>Error: el código es incorrecto</p>}
+                {loading && <p>Cargando...</p>}
+
+                <input
+                    type="text"
+                    placeholder="Código de seguridad"
+                    value={valor}
+                    onChange={(evento) => setValor(evento.target.value)}
+                />
+
+                {/* Usamos setError() para actulizar el valor de nuestro estado */}
+                <button onClick={() => setLoading(true)}>Comprobar</button>
+            </>
+        );
+    } else if (confirmado && !eliminado) {
+        return (
+            <>
+                <p>Estas seguro?</p>
+                <button
+                    onClick={() => {
+                        setEliminado(true);
+                    }}
+                >
+                    Si, estoy seguro.
+                </button>
+                <button
+                    onClick={() => {
+                        setConfirmado(false);
+                        setValor("");
+                    }}
+                >
+                    No, estoy seguro.
+                </button>
+            </>
+        );
+    } else {
+        return (
+            <>
+                <p>Eliminado con éxito</p>
+                <button
+                    onClick={() => {
+                        setEliminado(false);
+                        setConfirmado(false);
+                        setValor("");
+                    }}
+                >
+                    Reiniciar
+                </button>
+            </>
+        );
+    }
 }
