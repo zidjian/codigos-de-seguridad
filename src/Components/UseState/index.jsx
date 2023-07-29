@@ -17,18 +17,45 @@ export function UseState({ nombre }) {
     const [confirmado, setConfirmado] = useState(false);
     const [eliminado, setEliminado] = useState(false);
 
+    function onWrite() {
+        setError(false);
+        setLoading(false);
+        setConfirmado(true);
+    }
+
+    function onError() {
+        setError(true);
+        setLoading(false);
+    }
+
+    function onUpdate(nuevoValor) {
+        setValor(nuevoValor);
+    }
+
+    function onConfirm() {
+        setEliminado(true);
+    }
+
+    function onReverse() {
+        setConfirmado(false);
+        setValor("");
+    }
+
+    function onReset() {
+        setEliminado(false);
+        setConfirmado(false);
+        setValor("");
+    }
+
     useEffect(() => {
         // console.log("Inicio de proceso");
         if (loading) {
             setTimeout(() => {
                 console.log("setTimeout iniciado");
                 if (SECRETO !== valor) {
-                    setError(true);
-                    setLoading(false);
+                    onError();
                 } else {
-                    setError(false);
-                    setLoading(false);
-                    setConfirmado(true);
+                    onWrite();
                 }
             }, 2000);
         }
@@ -48,7 +75,7 @@ export function UseState({ nombre }) {
                     type="text"
                     placeholder="Código de seguridad"
                     value={valor}
-                    onChange={(evento) => setValor(evento.target.value)}
+                    onChange={(evento) => onUpdate(evento.target.value)}
                 />
 
                 {/* Usamos setError() para actulizar el valor de nuestro estado */}
@@ -61,15 +88,14 @@ export function UseState({ nombre }) {
                 <p>Estas seguro?</p>
                 <button
                     onClick={() => {
-                        setEliminado(true);
+                        onConfirm();
                     }}
                 >
                     Si, estoy seguro.
                 </button>
                 <button
                     onClick={() => {
-                        setConfirmado(false);
-                        setValor("");
+                        onReverse();
                     }}
                 >
                     No, estoy seguro.
@@ -82,9 +108,7 @@ export function UseState({ nombre }) {
                 <p>Eliminado con éxito</p>
                 <button
                     onClick={() => {
-                        setEliminado(false);
-                        setConfirmado(false);
-                        setValor("");
+                        onReset();
                     }}
                 >
                     Reiniciar
