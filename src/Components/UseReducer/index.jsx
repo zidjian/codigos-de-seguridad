@@ -11,6 +11,17 @@ const initialState = {
     confirmadoconfirmed: false,
 };
 
+// Se crea la variable actionTypes para que funcione como un model de TypeScript y que al usarlo sea mas dificil equivocarnos
+const actionTyoes = {
+    loading: "LOADING",
+    write: "WRITE",
+    error: "ERROR",
+    update: "UPDATE",
+    confirm: "CONFIRM",
+    reverse: "REVERSE",
+    reset: "RESET",
+};
+
 export function UseReducer({ nombre }) {
     // Usamos el propTypes para validar los props que lleguen a nuestro componente
     UseReducer.propTypes = {
@@ -20,19 +31,60 @@ export function UseReducer({ nombre }) {
     const [estado, dispatch] = useReducer(reducer, initialState);
     const { valor, error, loading, confirmado, eliminado } = estado;
 
+    // Trabajo con el paradigma declarativo
+    function onLoading() {
+        dispatch({
+            tipo: actionTyoes.loading,
+        });
+    }
+
+    function onWrite() {
+        dispatch({
+            tipo: actionTyoes.write,
+        });
+    }
+
+    function onError() {
+        dispatch({
+            tipo: actionTyoes.error,
+        });
+    }
+
+    function onUpdate(event) {
+        dispatch({
+            tipo: actionTyoes.update,
+            payload: event.target.value,
+        });
+    }
+
+    function onConfirm() {
+        dispatch({
+            tipo: actionTyoes.confirm,
+        });
+    }
+
+    function onReverse() {
+        dispatch({
+            tipo: actionTyoes.reverse,
+        });
+    }
+
+    function onReset() {
+        dispatch({
+            tipo: actionTyoes.reset,
+        });
+    }
+
     useEffect(() => {
         // console.log("Inicio de proceso");
         if (loading) {
             setTimeout(() => {
                 console.log("setTimeout iniciado");
+                console.log(valor)
                 if (SECRETO !== valor) {
-                    dispatch({
-                        tipo: "ERROR",
-                    });
+                    onError();
                 } else {
-                    dispatch({
-                        tipo: "WRITE",
-                    });
+                    onWrite();
                 }
             }, 2000);
         }
@@ -52,51 +104,26 @@ export function UseReducer({ nombre }) {
                     type="text"
                     placeholder="Código de seguridad"
                     value={valor}
-                    onChange={(evento) =>
-                        dispatch({
-                            tipo: "UPDATE",
-                            payload: evento.target.value,
-                        })
-                    }
+                    onChange={onUpdate}
                 />
 
                 {/* Usamos setError() para actulizar el valor de nuestro estado */}
-                <button onClick={() => dispatch({ tipo: "LOADING" })}>
-                    Comprobar
-                </button>
+                <button onClick={onLoading}>Comprobar</button>
             </>
         );
     } else if (confirmado && !eliminado) {
         return (
             <>
                 <p>Estas seguro?</p>
-                <button
-                    onClick={() => {
-                        dispatch({ tipo: "CONFIRM" });
-                    }}
-                >
-                    Si, estoy seguro.
-                </button>
-                <button
-                    onClick={() => {
-                        dispatch({ tipo: "REVERSE" });
-                    }}
-                >
-                    No, estoy seguro.
-                </button>
+                <button onClick={onConfirm}>Si, estoy seguro.</button>
+                <button onClick={onReverse}>No, estoy seguro.</button>
             </>
         );
     } else {
         return (
             <>
                 <p>Eliminado con éxito</p>
-                <button
-                    onClick={() => {
-                        dispatch({ tipo: "RESET" });
-                    }}
-                >
-                    Reiniciar
-                </button>
+                <button onClick={onReset}>Reiniciar</button>
             </>
         );
     }
